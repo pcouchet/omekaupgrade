@@ -1,6 +1,6 @@
 #!/bin/bash
-# install : in the omekaupgrade directory
-# launch : first parameter is site to upgrade, second is Omeka Classic version
+# install : unzip in the www directory
+# launch : from /omekaupgrade, first parameter is site to upgrade, second is Omeka Classic version
 # syntax : "./upgrade-omeka.sh sitename version" eg : "./upgrade-omeka.sh aian 2.7.1"
 # results : two directories are created 
 # 1/ the downloaded unzipped files, eg : /omekaupgrade/omeka-2.7.1
