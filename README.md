@@ -1,2 +1,2 @@
 # omekaupgrade
-A script to upgrade Omeka Classic, another script to upgrade Omeka S
+Scripts to upgrade Omeka Classic and Omeka S
