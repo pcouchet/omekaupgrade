@@ -1,67 +1,60 @@
 #!/bin/bash
-# Premier paramètre le répertoire du site à migrer, deuxième la version d'Omeka Classic
-# ex : ./upgrade-omeka.sh aian 2.7.1
-#
-# Deux répertoires sont créés : /omeka-2.7.1 (nouvelle version) et /omekabackup/aian (sauvegarde des fichiers modifiés) 
-#
+# install : unzip omekaupgrade
+# launch : from inside /omekaupgrade, first parameter is site to upgrade, second is Omeka S version
+# syntax : "./upgrade-omeka-s.sh omekaSiteName version" eg : "./upgrade-omeka-s.sh omeka-s 2.1.2"
+# two directories are created in /omekaupgrade :
+# 1/ /omekadownload with the zip and unzipped files
+# 2/ /omekabackup/omekaSiteName with saving of config, favicon and .htacces
 
-# SITE : nom du site, nom du répertoire à mettre à jour, exemple "aian"
-SITE=$1
-# OMEKA_V : version d'Omeka Classic, exemple "2.7.1"
-OMEKA_V=$2
-# Omeka url pour download
-URL_OMEKA=https://github.com/omeka/omeka-s/releases/download/v$OMEKA_V/omeka-s-$OMEKA_V.zip
-# ROOTDIR : Racine serveur web
-ROOTDIR=.
-# OMEKA_NEWDIR : Répertoire nouvelle version
-OMEKA_NEWDIR=$ROOTDIR/omeka-s-$OMEKA_V
-# BCKDIR : répertoire des sauvegardes
-BCKDIR=$ROOTDIR/omekabackup
-# BCKDIR_SITE : répertoire des quelques fichiers sauvegardés
-BCKDIR_SITE=$BCKDIR/$SITE
-# DEST_DIR : Site omeka à mettre à jour
-DEST_DIR=$ROOTDIR/$SITE
+# Omeka S code URL
+URL_OMEKA=https://github.com/omeka/omeka-s/releases/download/v$2/omeka-s-$2.zip
 
 echo
-echo 1. Creating backup dir $BCKDIR_SITE
-mkdir $ROOTDIR/omekabackup
-mkdir $BCKDIR_SITE
-mkdir $OMEKA_NEWDIR
+echo 1. Creating backup dir at /omekabackup/$1
+mkdir omekabackup
+mkdir omekabackup/$1
+mkdir omekadownload
+mkdir omekadownload/omeka-s-$2
 
-# Téléchargement si nécessaire
-if [ -f omeka-s-$OMEKA_V.zip -a -d $OMEKA_NEWDIR/omeka-s ]; then
-	echo zip file already downloaded, $OMEKA_NEWDIR exists
+# Download if necessary
+if [ -f ./omekadownload/omeka-s-$2/omeka-s-$2.zip ]; then
+	echo omeka-s-$2.zip already downloaded
 else
-	wget $URL_OMEKA
-	unzip omeka-s-$OMEKA_V.zip -d $OMEKA_NEWDIR
+	wget $URL_OMEKA -P ./omekadownload/omeka-s-$2/
+fi
+
+# Unzip if necessary
+if [ -f ./omekadownload/omeka-s-$2/omeka-s ]; then
+	echo zip file already unzipped
+else
+	unzip -o ./omekadownload/omeka-s-$2/omeka-s-$2.zip -d ./omekadownload/omeka-s-$2/
 fi
 
 echo
-echo 2. Backing up 4 files from $SITE in $BCKDIR_SITE
-cp $DEST_DIR/.htaccess $BCKDIR_SITE
-cp $DEST_DIR/favicon.ico $BCKDIR_SITE
-cp $DEST_DIR/config/database.ini $BCKDIR_SITE
+echo 2. Backing up 4 files from $1 in /omekabackup/$1
+cp ../$1/.htaccess ./omekabackup/$1
+cp ../$1/favicon.ico ./omekabackup/$1
+cp ../$1/config/database.ini ./omekabackup/$1
 
 # Uncomment for testing, stop the script before deleting production site
 #exit 1
 
 echo
-echo 3. Removing some directories and files from $DEST_DIR
-rm -rf $DEST_DIR/admin
-rm -rf $DEST_DIR/application
-rm -rf $DEST_DIR/install
-rm $DEST_DIR/*
+echo 3. Removing some directories and files from $1
+rm -rf ../$1/application
+rm -rf ../$1/vendor
+rm ../$1/*
 
 echo
-echo 4. Copying new Omeka $OMEKA_NEWDIR/* in $DEST_DIR
-cp -R $OMEKA_NEWDIR/omeka-s/* $DEST_DIR/
+echo 4. Copying new Omeka ./omekadownload/omeka-s-$2/* in $1
+cp -R ./omekadownload/omeka-s-$2/omeka-s/* ../$1/
 
 echo
-echo 5. Restoring 3 files from old version to $DEST_DIR
+echo 5. Restoring config files from old version to $1
 echo
-cp -R $BCKDIR_SITE/.htaccess $DEST_DIR/
-cp -R $BCKDIR_SITE/favicon.ico $DEST_DIR/
-cp -R $BCKDIR_SITE/database.ini $DEST_DIR/config/
+cp -R ./omekabackup/$1/.htaccess ../$1/
+cp -R ./omekabackup/$1/favicon.ico ../$1/
+cp -R ./omekabackup/$1/database.ini ../$1/config/
 
 echo
 echo 6. Connect to the admin of your site to complete the database upgrade

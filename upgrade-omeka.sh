@@ -1,12 +1,12 @@
 #!/bin/bash
-# install : unzip in the www directory
-# launch : from /omekaupgrade, first parameter is site to upgrade, second is Omeka Classic version
-# syntax : "./upgrade-omeka.sh sitename version" eg : "./upgrade-omeka.sh aian 2.7.1"
-# results : two directories are created 
+# install : unzip omekaupgrade
+# launch : from inside /omekaupgrade, first parameter is site to upgrade, second is Omeka Classic version
+# syntax : "./upgrade-omeka.sh omekaClassicSite version" eg : "./upgrade-omeka.sh aian 2.7.1"
+# results : two directories are created which contains
 # 1/ the downloaded unzipped files, eg : /omekaupgrade/omeka-2.7.1
 # 2/ the security saving under omekabackup/sitename, eg : /omekaupgrade/omekabackup/aian
 
-# download Omeka Classic
+# Omeka Classic code URL
 URL_OMEKA=https://github.com/omeka/Omeka/releases/download/v$2/omeka-$2.zip
 # directory of unzipped files
 OMEKA_NEWDIR=./omeka-$2
@@ -20,7 +20,7 @@ echo 1. Creating backup dir $BCKDIR_SITE
 mkdir ./omekabackup
 mkdir $BCKDIR_SITE
 
-# Téléchargement si nécessaire
+# Download if necessary
 if [ -f omeka-$2.zip -a -d $OMEKA_NEWDIR ]; then
 	echo zip file already downloaded, $OMEKA_NEWDIR exists
 else
