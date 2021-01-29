@@ -1,6 +1,10 @@
 #!/bin/bash
-# Premier paramètre le répertoire du site à migrer, deuxième la version d'Omeka Classic
-# ex : ./upgrade-omeka.sh aian 2.7.1
+# Script de mise à jour de la version d'Omeka S
+# Répertoire d'omekaupgrade à localiser au même niveau que les sites Omeka S à mettre à jour (sous "www" ou "data")
+#
+# Paramètre 1. nom du répertoire du site Omeka S à mettre à jour 
+# Paramètre 2. version d'Omeka S souhaitée
+# Paramètre 3. préservation de fichiers de configuration précédemment mémorisés
 #
 # Deux répertoires sont créés : /omeka-2.7.1 (nouvelle version) et /omekabackup/aian (sauvegarde des fichiers modifiés) 
 #
@@ -42,14 +46,14 @@ if [ -d ./omekadownload/omeka-s-$OMEKA_V ]; then
 else
   echo "2.2 Fichier en cours de décompression"
   mkdir ./omekadownload/omeka-s-$OMEKA_V
-	unzip ./omekadownload/omeka-s-$OMEKA_V.zip -d ./omekadownload/omeka-s-$OMEKA_V
+  unzip ./omekadownload/omeka-s-$OMEKA_V.zip -d ./omekadownload/omeka-s-$OMEKA_V
 fi
 echo -e "\n"
 
 # 3. Sauvegarde des fichiers de configuration
 if [ -d ./omekabackup/$SITE ]; then
   echo "3.1 Répertoire de sauvegarde de la configuration de $SITE déjà existant"
-  echo "3.1 Voulez vous écraser écraser cette sauvegarde (y/n)?"
+  echo "3.1 Voulez vous écraser écraser la sauvegarde (y/n)?"
   read answer
   # 3. Suppression sauvegarde précédente
   if [ "$answer" != "${answer#[Yy]}" ] ;then
@@ -59,7 +63,7 @@ if [ -d ./omekabackup/$SITE ]; then
     cp ../$SITE/favicon.ico ./omekabackup/$SITE/
     cp ../$SITE/config/database.ini ./omekabackup/$SITE/    
   fi
-else
+  else
   echo "3.2 Répertoire de sauvegarde ./omekabackup/$SITE inexistant"
   mkdir ./omekabackup/$SITE
   cp ../$SITE/.htaccess ./omekabackup/$SITE/
