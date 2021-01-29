@@ -1,2 +1,3 @@
 # omekaupgrade
-Scripts to upgrade Omeka Classic and Omeka S
+
+Scripts to upgrade Omeka Classic or Omeka S
