@@ -1,20 +1,19 @@
 #!/bin/bash
 # Script de mise à jour de la version d'Omeka S
 # Répertoire d'omekaupgrade à localiser au même niveau que les sites Omeka S à mettre à jour (sous "www" ou "data")
+# installation : git clone https://github.com/pcouchet/omekaupgrade.git 
 #
 # Paramètre 1. nom du répertoire du site Omeka S à mettre à jour 
 # Paramètre 2. version d'Omeka S souhaitée
-# Paramètre 3. préservation de fichiers de configuration précédemment mémorisés
 #
 # Deux répertoires sont créés : /omeka-2.7.1 (nouvelle version) et /omekabackup/aian (sauvegarde des fichiers modifiés) 
 #
 # ex : ./upgrade-omeka-s.sh
 #
 
-# SITE : nom du site, nom du répertoire à mettre à jour, exemple "aian"
 echo "Bienvenue dans l'interface de mise à jour d'Omeka S"
 
-# 1. Site du répertoire courant à upgrader, ex : batadata
+# 1. Site du répertoire courant à upgrader, ex : batadata, répertoire des sauvegardes
 echo "1. Nom de répertoire du site à mettre à jour ?"
 read SITE
 if [ -d "../$SITE" ];
@@ -25,6 +24,15 @@ if [ -d "../$SITE" ];
   exit 1
 fi
 echo -e "\n"
+mkdir ./omekabackup/$SITE
+
+# 1.5 Sauvegarde de la base MySql
+echo -e "Voulez-vous sauvegarder la base ? [O/N]\n"
+read DB_BACKUP
+if [ "$DB_BACKUP" = "O" ]
+then
+	echo "Sauvegardez via phpMyAdmin avant de poursuivre"
+fi
 
 # 2. Version d'omeka S à mettre en place, ex : 3.0.1
 echo "2. Version d'Omeka S souhaitée ?"
@@ -50,49 +58,34 @@ else
 fi
 echo -e "\n"
 
-# 3. Sauvegarde des fichiers de configuration
-if [ -d ./omekabackup/$SITE ]; then
-  echo "3.1 Répertoire de sauvegarde de la configuration de $SITE déjà existant"
-  echo "3.1 Voulez vous écraser écraser la sauvegarde (y/n)?"
-  read answer
-  # 3. Suppression sauvegarde précédente
-  if [ "$answer" != "${answer#[Yy]}" ] ;then
-    rm -f ./omekabackup/$SITE/*.*
-    echo "3. Sauvegarde précédente supprimée"
-    cp ../$SITE/.htaccess ./omekabackup/$SITE/
-    cp ../$SITE/favicon.ico ./omekabackup/$SITE/
-    cp ../$SITE/config/database.ini ./omekabackup/$SITE/    
-  fi
-  else
-  echo "3.2 Répertoire de sauvegarde ./omekabackup/$SITE inexistant"
-  mkdir ./omekabackup/$SITE
-  cp ../$SITE/.htaccess ./omekabackup/$SITE/
-  cp ../$SITE/favicon.ico ./omekabackup/$SITE/
-  cp ../$SITE/config/database.ini ./omekabackup/$SITE/    
-fi
+# 3. Sauvegarde des fichiers de configuration et personnalisés
+echo "3.2 Sauvegarde des fichiers personnalisés dans ./omekabackup/$SITE"
+cp ../$SITE/.htaccess ./omekabackup/$SITE/
+cp ../$SITE/favicon.ico ./omekabackup/$SITE/
+cp ../$SITE/config/database.ini ./omekabackup/$SITE/    
+cp ../$SITE/config/local.config.php ./omekabackup/$SITE/    
 echo -e "\n"
 
-# 4. Suprression des répertoires /application, /config, /vendor et des fichiers à la racine
-# les répertoires /files, /logs, /modules,/themes sont conservés
-echo -e "4. Suppression des répertoires de l'ancienne version\n"
+# 4. Suprression des répertoires /application, /vendor et des fichiers à la racine
+# les répertoires /config, /files, /logs, /modules, /themes et leurs contenus sont préservés
+echo -e "4. Suppression des répertoires de l'ancienne version et des fichiers à la racine\n"
 rm -rf ../$SITE/application
-rm -rf ../$SITE/config
 rm -rf ../$SITE/vendor
-rm -f ../$SITE/*
-rm -f ../$SITE/.htaccess
+find ../$SITE/ -maxdepth 1 -type f -delete
 
-# 5. Suprression des répertoires /application, /config, /vendor et des fichiers à la racine
-# les répertoires /files, /logs, /modules,/themes sont conservés
-echo -e "5. Copie des répertoires de la nouvelle version dans $SITE\n"
-cp -R ./omekadownload/omeka-s-$OMEKA_V/omeka-s/* ../$SITE/
+# 5. Copie des répertoires /application, /vendor et des fichiers à la racine
+# de la nouvelle version
+echo -e "5. Copie des répertoires /application, /vendor et des fichiers à la racine dans $SITE\n"
+cp -R ./omekadownload/omeka-s-$OMEKA_V/omeka-s/application ../$SITE/
+cp -R ./omekadownload/omeka-s-$OMEKA_V/omeka-s/vendor ../$SITE/
+cp ./omekadownload/omeka-s-$OMEKA_V/omeka-s/*.* ../$SITE/
+cp ./omekadownload/omeka-s-$OMEKA_V/omeka-s/.htaccess ../$SITE/
+cp ./omekadownload/omeka-s-$OMEKA_V/omeka-s/LICENSE ../$SITE/
 
-# 6. Copie des fichiers de configuration
+# 6. Copie des fichiers sauvegardés de la racine
 echo -e "6. Copie des fichiers de configuration sauvegardés du site $SITE\n"
-rm ../$SITE/.htaccess
-rm ../$SITE/config/database.ini    
 cp ./omekabackup/$SITE/.htaccess ../$SITE/
 cp ./omekabackup/$SITE/favicon.ico ../$SITE/
-cp ./omekabackup/$SITE/database.ini ../$SITE/config/database.ini
 
-echo "7. End\n"
+echo -e "7. End\n"
 
