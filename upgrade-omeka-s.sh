@@ -27,7 +27,7 @@ echo -e "\n"
 mkdir ./omekabackup/$SITE
 
 # 1.5 Sauvegarde de la base MySql
-echo -e "Voulez-vous sauvegarder la base ? [O/N]\n"
+echo -e "Voulez-vous sauvegarder la base (fortement recommandé pour revenir en arrière) ? [O/N]\n"
 read DB_BACKUP
 if [ "$DB_BACKUP" = "O" ]
 then
@@ -75,7 +75,7 @@ find ../$SITE/ -maxdepth 1 -type f -delete
 
 # 5. Copie des répertoires /application, /vendor et des fichiers à la racine
 # de la nouvelle version
-echo -e "5. Copie des répertoires /application, /vendor et des fichiers à la racine dans $SITE\n"
+echo -e "5. Copie des répertoires /application, /vendor et des fichiers à la racine de $SITE\n"
 cp -R ./omekadownload/omeka-s-$OMEKA_V/omeka-s/application ../$SITE/
 cp -R ./omekadownload/omeka-s-$OMEKA_V/omeka-s/vendor ../$SITE/
 cp ./omekadownload/omeka-s-$OMEKA_V/omeka-s/*.* ../$SITE/
